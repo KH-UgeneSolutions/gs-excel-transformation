@@ -23,7 +23,6 @@ task_function = process_ca_data if task_type == "Weekly Task" and selected_serve
 
 uploaded_file = st.file_uploader(uploaded_file_label, type=["xlsx"])
 if uploaded_file is not None:
-    # st.write("Please Enter the Selected Datetime (YYYY-MM-DD HH:MM:SS):")
     selected_datetime_str = st.text_input("Enter the Selected Datetime", value="", max_chars=19, key="selected_datetime")
     if st.button("Process"):
         df_processed = task_function(uploaded_file, selected_datetime_str)
@@ -36,12 +35,9 @@ if uploaded_file is not None:
         st.write(f"Number of columns: {num_cols}")
 
         # Download Processed Data
-        # st.write("Download Processed Data")
         with st.spinner("Generating download link..."):
             output = io.BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df_processed.to_excel(writer, index=False, sheet_name='Sheet1')
-            writer.save()
+            df_processed.to_excel(output, index=False, sheet_name='Sheet1')  # Save Excel using Pandas
             output.seek(0)
 
             # Get the uploaded filename and add '_transformed' suffix
