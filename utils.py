@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import pytz
 
 # Constant unit
 gallon = 3.785411784
@@ -14,8 +15,11 @@ def process_data(file, selected_datetime_str):
     df.insert(0, 'Id', np.nan)
     
     selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
+    selected_datetime_sg = pytz.timezone('Asia/Singapore').localize(selected_datetime)  # Convert to Singapore time
+
     df['Receive task report time'] = pd.to_datetime(df['Receive task report time'])
-    df_filtered = df[df['Receive task report time'] > selected_datetime]
+    df['Receive task report time'] = df['Receive task report time'].dt.tz_localize('UTC').dt.tz_convert('Asia/Singapore')  # Convert to Singapore time
+    df_filtered = df[df['Receive task report time'] > selected_datetime_sg]
     df_filtered = df_filtered.sort_values(by='Receive task report time', ascending=False)
     df_filtered.reset_index(drop=True, inplace=True)
     
@@ -30,7 +34,7 @@ def process_data(file, selected_datetime_str):
     df_reorder = df_filtered[column_order]
     
     df_test = df_reorder.copy()
-    current_datetime = datetime.now()
+    current_datetime = pytz.timezone('Asia/Singapore').localize(datetime.now())  # Convert to Singapore time
     new_datetime = current_datetime + timedelta(minutes=15)
     formatted_datetime = new_datetime.strftime("%Y-%m-%d %H:%M:00")
     columns_to_update = ['Planned crystallization area (㎡)', 'Actual crystallization area (㎡)']
@@ -42,7 +46,12 @@ def process_data(file, selected_datetime_str):
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(lambda x: x.str.replace(',', ''))
 
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].replace('0.00', '0')
-    
+
+    # Convert datetime columns to string without timezone information
+    datetime_columns = ['Receive task report time']
+    for col in datetime_columns:
+        df_replaced[col] = df_replaced[col].dt.strftime('%Y-%m-%d %H:%M:%S')
+
     return df_replaced
 
 def process_ca_data(file, selected_datetime_str):
@@ -52,8 +61,11 @@ def process_ca_data(file, selected_datetime_str):
     df.insert(0, 'Id', np.nan)
     
     selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
+    selected_datetime_sg = pytz.timezone('Asia/Singapore').localize(selected_datetime)  # Convert to Singapore time
+
     df['Receive task report time'] = pd.to_datetime(df['Receive task report time'])
-    df_filtered = df[df['Receive task report time'] > selected_datetime]
+    df['Receive task report time'] = df['Receive task report time'].dt.tz_localize('UTC').dt.tz_convert('Asia/Singapore')  # Convert to Singapore time
+    df_filtered = df[df['Receive task report time'] > selected_datetime_sg]
     df_filtered = df_filtered.sort_values(by='Receive task report time', ascending=False)
     df_filtered.reset_index(drop=True, inplace=True)
     
@@ -68,7 +80,7 @@ def process_ca_data(file, selected_datetime_str):
     df_reorder = df_filtered[column_order]
     
     df_test = df_reorder.copy()
-    current_datetime = datetime.now()
+    current_datetime = pytz.timezone('Asia/Singapore').localize(datetime.now())
     new_datetime = current_datetime + timedelta(minutes=15)
     formatted_datetime = new_datetime.strftime("%Y-%m-%d %H:%M:00")
     columns_to_update = ['Planned crystallization area (ft²)', 'Actual crystallization area (ft²)']
@@ -84,5 +96,17 @@ def process_ca_data(file, selected_datetime_str):
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].applymap(lambda x: str(x).replace(',', ''))
 
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].replace('0.0', '0')
-    
+
+    # Convert datetime columns to string without timezone information
+    datetime_columns = ['Receive task report time']
+    for col in datetime_columns:
+        df_replaced[col] = df_replaced[col].dt.strftime('%Y-%m-%d %H:%M:%S')   
+
     return df_replaced
+
+def addTwoNullCols(df):
+    df['Job Id'] = np.nan
+    df['Vendor'] = np.nan
+    df.fillna("NULL", inplace=True)
+
+    return df

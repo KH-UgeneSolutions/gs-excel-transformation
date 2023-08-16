@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from xlsxwriter import Workbook
-from utils import process_data, process_ca_data
+from utils import process_data, process_ca_data, addTwoNullCols
 import io, os
 
 # Streamlit app
@@ -9,7 +10,7 @@ st.title("Data Processing and Transformation with Streamlit")
 st.write("This web app aims to perform data processing and transformation to fit the database input format.")
 
 # Sidebar options
-servers = ["GS SPORE", "GS AUS Eclipse", "GS HK", "Metroplaza Ecobot GS Cloud", "GS CA"]
+servers = ["GS SPORE", "GS AUS Eclipse", "Metroplaza Ecobot GS Cloud", "GS HK", "GS CA"]
 selected_server = st.sidebar.selectbox("Select Server", servers)
 
 # Determine task type based on server
@@ -23,9 +24,14 @@ task_function = process_ca_data if task_type == "Weekly Task" and selected_serve
 
 uploaded_file = st.file_uploader(uploaded_file_label, type=["xlsx"])
 if uploaded_file is not None:
-    selected_datetime_str = st.text_input("Enter the Selected Datetime", value="", max_chars=19, key="selected_datetime")
+    selected_datetime_str = st.text_input("Please Enter the [Receive Task Report Time]", value="", max_chars=19, key="selected_datetime")
     if st.button("Process"):
         df_processed = task_function(uploaded_file, selected_datetime_str)
+
+        # Insert NaN columns for all servers except "GS SPORE"
+        if selected_server != "GS SPORE":
+            df_processed = addTwoNullCols(df_processed)
+
         st.write("Processed DataFrame:")
         st.dataframe(df_processed)
         
