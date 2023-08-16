@@ -1,13 +1,23 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import pytz
 from xlsxwriter import Workbook
-from utils import process_data, process_ca_data, addTwoNullCols
+from datetime import datetime
+from utils import process_data, process_ca_data, addTwoNullCols, convert_to_sg_time
 import io, os
 
 # Streamlit app
 st.title("Data Processing and Transformation with Streamlit")
 st.write("This web app aims to perform data processing and transformation to fit the database input format.")
+
+# UTC time
+utc_time = datetime.utcnow()
+sg_time = convert_to_sg_time(utc_time)
+
+# Display both UTC and Singapore times
+st.write(f"UTC Time: {utc_time}")
+st.write(f"Singapore Time: {sg_time}")
 
 # Sidebar options
 servers = ["GS SPORE", "GS AUS Eclipse", "Metroplaza Ecobot GS Cloud", "GS HK", "GS CA"]
@@ -26,6 +36,9 @@ uploaded_file = st.file_uploader(uploaded_file_label, type=["xlsx"])
 if uploaded_file is not None:
     selected_datetime_str = st.text_input("Please Enter the [Receive Task Report Time]", value="", max_chars=19, key="selected_datetime")
     if st.button("Process"):
+        selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
+        selected_datetime_utc = pytz.timezone('Asia/Singapore').localize(selected_datetime)
+        
         df_processed = task_function(uploaded_file, selected_datetime_str)
 
         # Insert NaN columns for all servers except "GS SPORE"
