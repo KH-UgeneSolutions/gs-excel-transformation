@@ -85,7 +85,7 @@ def process_ca_data(file, selected_datetime_str):
     df_reorder = df_filtered[column_order]
     
     df_test = df_reorder.copy()
-    columns_to_update = ['Planned crystallization area (㎡)', 'Actual crystallization area (㎡)']
+    columns_to_update = ['Planned crystallization area (ft²)', 'Actual crystallization area (ft²)']
     df_test.loc[:, columns_to_update] = formatted_datetime
     
     df_replaced = df_test.applymap(lambda cell: 0 if cell == '-' else cell)
