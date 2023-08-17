@@ -49,7 +49,7 @@ def process_data(file, selected_datetime_str):
 
     # Calculate new_datetime with time difference
     current_datetime = datetime.now()
-    time_difference = timedelta(hours=9, minutes=15)
+    time_difference = timedelta(hours=9)
     new_datetime = current_datetime + time_difference
     formatted_datetime = new_datetime.strftime("%Y-%m-%d %H:%M:00")
 
