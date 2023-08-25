@@ -37,10 +37,10 @@ else:
     
 adjusted_datetime = datetime.now() + time_diff
 
+# Setting for excel file
 uploaded_file_label = f"Upload an Excel file for {task_type}"
-# task_function = process_ca_data if task_type == "Weekly Task" and selected_server == "GS CA" else process_data
-
 uploaded_file = st.file_uploader(uploaded_file_label, type=["xlsx"])
+
 if uploaded_file is not None:
     selected_datetime_str = st.text_input("Please Enter the [Receive Task Report Time]", value="", max_chars=19, key="selected_datetime")
     if st.button("Process"):
