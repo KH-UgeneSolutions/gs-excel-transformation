@@ -8,7 +8,7 @@ gallon = 3.785411784
 feet_squared = 0.09290304
 
 # Function to process data
-def process_data(file, selected_datetime_str):
+def process_data(file, selected_datetime_str, adjusted_datetime):
     """
     Process data from an Excel file for the selected datetime.
 
@@ -47,15 +47,9 @@ def process_data(file, selected_datetime_str):
     
     df_test = df_reorder.copy()
 
-    # Calculate the latest 'Receive task report time'
-    latest_receive_time = df_test.loc[0, 'Receive task report time']
-
-    # Add 1 hour to the latest 'Receive task report time'
-    new_datetime = latest_receive_time + timedelta(hours=1)
-
-    # Update columns with new_datetime 
+    # Update columns with adjusted_datetime 
     columns_to_update = ['Planned crystallization area (㎡)', 'Actual crystallization area (㎡)']
-    df_test.loc[:, columns_to_update] = new_datetime
+    df_test.loc[:, columns_to_update] = adjusted_datetime
 
     df_replaced = df_test.applymap(lambda cell: 0 if cell == '-' else cell)
     df_replaced = df_replaced.fillna("NULL")
@@ -69,7 +63,7 @@ def process_data(file, selected_datetime_str):
 
     return df_replaced
 
-def process_ca_data(file, selected_datetime_str):
+def process_ca_data(file, selected_datetime_str, adjusted_datetime):
     """
     Process data from an Excel file for the selected datetime (Canada-specific).
 
@@ -108,15 +102,9 @@ def process_ca_data(file, selected_datetime_str):
 
     df_test = df_reorder.copy()
 
-    # Calculate the latest 'Receive task report time'
-    latest_receive_time = df_test.loc[0, 'Receive task report time']
-
-    # Add 1 hour to the latest 'Receive task report time'
-    new_datetime = latest_receive_time + timedelta(hours=1)
-
-    # Update columns with new_datetime
+    # Update columns with adjusted_datetime
     columns_to_update = ['Planned crystallization area (ft²)', 'Actual crystallization area (ft²)']
-    df_test.loc[:, columns_to_update] = new_datetime
+    df_test.loc[:, columns_to_update] = adjusted_datetime
 
     df_replaced = df_test.applymap(lambda cell: 0 if cell == '-' else cell)
     df_replaced = df_replaced.fillna("NULL")

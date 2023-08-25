@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import pytz
 from xlsxwriter import Workbook
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils import process_data, process_ca_data, addTwoNullCols, convert_to_sg_time
 import io, os
 
@@ -29,8 +29,16 @@ if selected_server in ["GS HK", "GS CA"]:
 else:
     task_type = "Daily Task"
 
+# Calculate adjusted datetime for different servers
+if selected_server == "GS SPORE":
+    time_diff = timedelta(hours=9)  # Add an extra hour for GS SPORE
+else:
+    time_diff = timedelta(hours=8)  # Standard time difference
+    
+adjusted_datetime = datetime.now() + time_diff
+
 uploaded_file_label = f"Upload an Excel file for {task_type}"
-task_function = process_ca_data if task_type == "Weekly Task" and selected_server == "GS CA" else process_data
+# task_function = process_ca_data if task_type == "Weekly Task" and selected_server == "GS CA" else process_data
 
 uploaded_file = st.file_uploader(uploaded_file_label, type=["xlsx"])
 if uploaded_file is not None:
@@ -38,8 +46,14 @@ if uploaded_file is not None:
     if st.button("Process"):
         selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
         selected_datetime_utc = pytz.timezone('Asia/Singapore').localize(selected_datetime)
+
+        # Determine the appropriate processing function
+        if task_type == "Weekly Task" and selected_server == "GS CA":
+            task_function = process_ca_data
+        else:
+            task_function = process_data
         
-        df_processed = task_function(uploaded_file, selected_datetime_str)
+        df_processed = task_function(uploaded_file, selected_datetime_str, adjusted_datetime)
 
         # Insert NaN columns for all servers except "GS SPORE"
         if selected_server != "GS SPORE":
