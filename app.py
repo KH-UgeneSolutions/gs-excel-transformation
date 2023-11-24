@@ -20,7 +20,7 @@ st.write(f"UTC Time: {utc_time}")
 st.write(f"Singapore Time: {sg_time}")
 
 # Sidebar options
-servers = ["GS SPORE", "GS AUS Eclipse", "GS THAI", "Metroplaza Ecobot GS Cloud", "GS HK", "GS CA"]
+servers = ["GS SPORE", "GS AUS Eclipse", "GS QA", "Metroplaza Ecobot GS Cloud", "GS HK", "GS CA"]
 selected_server = st.sidebar.selectbox("Select Server", servers)
 
 # Determine task type based on server

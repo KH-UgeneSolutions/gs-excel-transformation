@@ -152,6 +152,8 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime):
     df_replaced['Water usage (gal)'] = df_replaced['Water usage (gal)'] * gallon
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(pd.to_numeric) * feet_squared
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].applymap(lambda x: str(x).replace(',', ''))
+    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(pd.to_numeric).round(4)
+    df_replaced['Water usage (gal)'] = df_replaced['Water usage (gal)'].apply(pd.to_numeric).round(4)
 
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].replace('0.0', '0')
     df_replaced[columns_with_pct] = df_replaced[columns_with_pct].replace('100.00', '100')
