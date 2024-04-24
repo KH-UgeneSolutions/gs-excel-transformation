@@ -12,9 +12,15 @@ Access the Streamlit web app here: https://gs-excel-transformation.streamlit.app
 ```
 git clone https://github.com/KH-UgeneSolutions/gs-excel-transformation.git
 ```
-2. Activate your venv (Windows)
+2. Activate your venv
+
+- Windows:
 ```
 python -m venv venv & venv\Scripts\activate
+```
+- Linux:
+```
+python3 -m venv venv && source venv/bin/activate
 ```
 3. Install the python dependencies for this project
 ```
