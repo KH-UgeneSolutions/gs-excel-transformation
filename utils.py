@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import pytz
+import streamlit as st
+import io, os
 
 # Constant unit
 gallon = 3.785411784
@@ -32,7 +34,7 @@ def process_data(file, selected_datetime_str, adjusted_datetime):
     Example:
         df_processed = process_data(uploaded_file, "2023-08-25 14:00:00", datetime.now())
     """
-    df = pd.read_excel(file, skiprows=1)
+    df = pd.read_csv(file)
 
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (㎡)', 'Task start mode', 'Remarks']
@@ -108,7 +110,7 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime):
     Example:
         df_processed = process_ca_data(uploaded_file, "2023-08-25 14:00:00", datetime.now())
     """
-    df = pd.read_excel(file, skiprows=1)
+    df = pd.read_csv(file)
 
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (ft²)', 'Task start mode', 'Remarks']
@@ -181,3 +183,77 @@ def convert_to_sg_time(utc_time):
     utc = pytz.utc.localize(utc_time)
     sg_time = utc.astimezone(pytz.timezone('Asia/Singapore'))
     return sg_time
+
+def display_time() -> str:
+    """Displays current UTC and Singapore times."""
+    utc_time = datetime.utcnow()
+    sg_time = convert_to_sg_time(utc_time).strftime("%Y-%m-%d %H:%M:%S")
+    st.markdown(f"##### Singapore Time: {sg_time}")
+    # st.markdown(f"<p style='font-size:20px; font-weight:bold;'>{sg_time}</p>", unsafe_allow_html=True)
+    return sg_time
+
+
+def get_task_type(server: str) -> str:
+    """Returns the task type based on the selected server."""
+    return "Weekly Task" if server in ["GS QA", "GS CA"] else "Daily Task"
+
+
+def calculate_adjusted_datetime(server: str) -> str:
+    """Calculates adjusted datetime based on the server."""
+    time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8)
+    adjusted_datetime = (datetime.now() + time_diff).strftime("%Y-%m-%d %H:%M:%S")
+    return adjusted_datetime
+
+
+def process_uploaded_file(
+    uploaded_file: io.BytesIO,
+    task_type: str,
+    selected_datetime: str,
+    adjusted_datetime: str,
+    selected_server: str
+) -> pd.DataFrame:
+    """
+    Processes the uploaded file based on the task type, datetime, and server.
+    
+    Args:
+        uploaded_file: The file uploaded by the user.
+        task_type: The type of task (Daily/Weekly).
+        selected_datetime: The user-selected datetime.
+        adjusted_datetime: The adjusted datetime based on the server.
+        selected_server: The selected server.
+
+    Returns:
+        A processed DataFrame.
+    """
+    # Select the appropriate processing function
+    task_function = process_ca_data if task_type == "Weekly Task" and selected_server == "GS CA" else process_data
+    df_processed = task_function(uploaded_file, selected_datetime, adjusted_datetime)
+
+    # Add null columns for servers other than "GS SPORE"
+    if selected_server != "GS SPORE":
+        df_processed = addTwoNullCols(df_processed)
+
+    return df_processed
+
+
+def download_processed_data(df_processed: pd.DataFrame, uploaded_file_name: str, selected_server: str):
+    """
+    Generates a download button for the processed DataFrame.
+    
+    Args:
+        df_processed: The processed DataFrame.
+        uploaded_file_name: The name of the uploaded file.
+        selected_server: The selected server.
+    """
+    with st.spinner("Generating download link..."):
+        output = io.BytesIO()
+        df_processed.to_excel(output, index=False, sheet_name='Sheet1')
+        output.seek(0)
+
+        processed_filename = f"{selected_server}_{os.path.splitext(uploaded_file_name)[0]}_transformed.xlsx"
+        st.download_button(
+            label="Download Processed Data",
+            data=output,
+            file_name=processed_filename,
+            key="download_button"
+        )
