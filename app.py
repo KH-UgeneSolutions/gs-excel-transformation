@@ -21,9 +21,9 @@ task_type = get_task_type(selected_server)
 adjusted_datetime = calculate_adjusted_datetime(selected_server)
 
 # File upload section
-uploaded_file_label = f" ##### Upload a CSV file for {task_type}"
+uploaded_file_label = f" ##### Upload a CSV or XLSX file for {task_type}"
 # st.markdown(uploaded_file_label)
-uploaded_file = st.file_uploader(uploaded_file_label, type=["csv"])
+uploaded_file = st.file_uploader(uploaded_file_label, type=["csv","xlsx"])
 
 if uploaded_file:
     selected_datetime_str = st.text_input(

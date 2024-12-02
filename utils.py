@@ -9,6 +9,32 @@ import io, os
 gallon = 3.785411784
 feet_squared = 0.09290304
 
+# Function to read files dynamically based on file type
+def read_file(file):
+    """
+    Reads a file and returns a pandas DataFrame.
+    Supports CSV and Excel (.xlsx) files.
+
+    Args:
+        file (file-like object): The uploaded file.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the file's data.
+
+    Raises:
+        ValueError: If the file extension is not supported.
+    """
+    try:
+        # Check the file extension
+        if file.name.endswith(".csv"):
+            return pd.read_csv(file)
+        elif file.name.endswith(".xls") or file.name.endswith(".xlsx"):
+            return pd.read_excel(file)
+        else:
+            raise ValueError(f"Unsupported file type: {file.name}")
+    except Exception as e:
+        raise RuntimeError(f"An error occurred while reading the file: {e}")
+
 # Function to process data
 def process_data(file, selected_datetime_str, adjusted_datetime):
     """
@@ -34,7 +60,7 @@ def process_data(file, selected_datetime_str, adjusted_datetime):
     Example:
         df_processed = process_data(uploaded_file, "2023-08-25 14:00:00", datetime.now())
     """
-    df = pd.read_csv(file)
+    df = read_file(file)
 
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (㎡)', 'Task start mode', 'Remarks']
@@ -110,7 +136,7 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime):
     Example:
         df_processed = process_ca_data(uploaded_file, "2023-08-25 14:00:00", datetime.now())
     """
-    df = pd.read_csv(file)
+    df = read_file(file)
 
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (ft²)', 'Task start mode', 'Remarks']
