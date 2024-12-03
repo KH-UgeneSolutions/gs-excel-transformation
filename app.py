@@ -25,6 +25,18 @@ uploaded_file_label = f" ##### Upload a CSV or XLSX file for {task_type}"
 # st.markdown(uploaded_file_label)
 uploaded_file = st.file_uploader(uploaded_file_label, type=["csv","xlsx"])
 
+# Input for dynamic exclusion of 'S/N' values
+exclude_values = None
+if selected_server == "GS AUS Eclipse":
+    st.markdown("#### Exclude S/N Values")
+    exclude_values_input = st.text_area(
+        "Enter S/N values to exclude (comma-separated):",
+        value="",
+        placeholder="e.g., 123, 456, 789"
+    )
+    if exclude_values_input:
+        exclude_values = [value.strip() for value in exclude_values_input.split(",")]
+
 if uploaded_file:
     selected_datetime_str = st.text_input(
         "Please Enter the [Receive Task Report Time]",
@@ -44,7 +56,8 @@ if uploaded_file:
                 task_type,
                 selected_datetime_str,
                 adjusted_datetime,
-                selected_server
+                selected_server,
+                exclude_values=exclude_values 
             )
 
             # Display processed data and metadata

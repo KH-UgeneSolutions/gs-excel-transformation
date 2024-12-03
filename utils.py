@@ -36,7 +36,7 @@ def read_file(file):
         raise RuntimeError(f"An error occurred while reading the file: {e}")
 
 # Function to process data
-def process_data(file, selected_datetime_str, adjusted_datetime):
+def process_data(file, selected_datetime_str, adjusted_datetime, exclude_values=None):
     """
     Process data from an Excel file for the selected datetime.
 
@@ -72,6 +72,11 @@ def process_data(file, selected_datetime_str, adjusted_datetime):
     # Filter and sort DataFrame
     df['Receive task report time'] = pd.to_datetime(df['Receive task report time'])
     df_filtered = df[df['Receive task report time'] > selected_datetime]
+
+    # Exclude values from 'S/N' if exclude_values is provided
+    if exclude_values:
+        df_filtered = df_filtered[~df_filtered['S/N'].isin(exclude_values)]
+
     df_filtered = df_filtered.sort_values(by='Receive task report time', ascending=False)
     df_filtered.reset_index(drop=True, inplace=True)
 
@@ -226,7 +231,7 @@ def get_task_type(server: str) -> str:
 
 def calculate_adjusted_datetime(server: str) -> str:
     """Calculates adjusted datetime based on the server."""
-    time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8)
+    time_diff = timedelta(hours=1) if server == "GS SPORE" else timedelta(hours=0)
     adjusted_datetime = (datetime.now() + time_diff).strftime("%Y-%m-%d %H:%M:%S")
     return adjusted_datetime
 
@@ -236,7 +241,8 @@ def process_uploaded_file(
     task_type: str,
     selected_datetime: str,
     adjusted_datetime: str,
-    selected_server: str
+    selected_server: str,
+    exclude_values=None
 ) -> pd.DataFrame:
     """
     Processes the uploaded file based on the task type, datetime, and server.
@@ -253,7 +259,7 @@ def process_uploaded_file(
     """
     # Select the appropriate processing function
     task_function = process_ca_data if task_type == "Weekly Task" and selected_server == "GS CA" else process_data
-    df_processed = task_function(uploaded_file, selected_datetime, adjusted_datetime)
+    df_processed = task_function(uploaded_file, selected_datetime, adjusted_datetime, exclude_values=exclude_values)
 
     # Add null columns for servers other than "GS SPORE"
     if selected_server != "GS SPORE":
