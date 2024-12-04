@@ -117,7 +117,7 @@ def process_data(file, selected_datetime_str, adjusted_datetime, exclude_values=
 
     return df_replaced
 
-def process_ca_data(file, selected_datetime_str, adjusted_datetime):
+def process_ca_data(file, selected_datetime_str, adjusted_datetime, exclude_values=None):
     """
     Process data from an Excel file (Canada data) for the selected datetime.
 
@@ -153,6 +153,11 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime):
     # Filter and sort DataFrame
     df['Receive task report time'] = pd.to_datetime(df['Receive task report time'])
     df_filtered = df[df['Receive task report time'] > selected_datetime]
+    
+    # Exclude values from 'S/N' if exclude_values is provided
+    if exclude_values:
+        df_filtered = df_filtered[~df_filtered['S/N'].isin(exclude_values)]
+
     df_filtered = df_filtered.sort_values(by='Receive task report time', ascending=False)
     df_filtered.reset_index(drop=True, inplace=True)
 
