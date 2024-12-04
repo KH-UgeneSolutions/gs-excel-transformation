@@ -231,7 +231,8 @@ def get_task_type(server: str) -> str:
 
 def calculate_adjusted_datetime(server: str) -> str:
     """Calculates adjusted datetime based on the server."""
-    time_diff = timedelta(hours=1) if server == "GS SPORE" else timedelta(hours=0)
+    time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8)
+    # time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8) # uncomment if env on local streamlit
     adjusted_datetime = (datetime.now() + time_diff).strftime("%Y-%m-%d %H:%M:%S")
     return adjusted_datetime
 
