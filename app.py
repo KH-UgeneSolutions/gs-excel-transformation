@@ -50,15 +50,31 @@ if uploaded_file:
             # Parse the input datetime
             selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
 
+            # # Process the uploaded file
+            # df_processed = process_uploaded_file(
+            #     uploaded_file,
+            #     task_type,
+            #     selected_datetime_str,
+            #     adjusted_datetime,
+            #     selected_server,
+            #     exclude_values=exclude_values 
+            # )
+            
+            # Prepare arguments for process_uploaded_file
+            process_args = {
+                "uploaded_file": uploaded_file,
+                "task_type": task_type,
+                "selected_datetime": selected_datetime_str,
+                "adjusted_datetime": adjusted_datetime,
+                "selected_server": selected_server,
+            }
+
+            # Add 'exclude_values' to arguments only if server is 'GS AUS Eclipse'
+            if selected_server == "GS AUS Eclipse" and exclude_values:
+                process_args["exclude_values"] = exclude_values
+
             # Process the uploaded file
-            df_processed = process_uploaded_file(
-                uploaded_file,
-                task_type,
-                selected_datetime_str,
-                adjusted_datetime,
-                selected_server,
-                exclude_values=exclude_values 
-            )
+            df_processed = process_uploaded_file(**process_args)
 
             # Display processed data and metadata
             st.markdown("### Processed DataFrame:")
