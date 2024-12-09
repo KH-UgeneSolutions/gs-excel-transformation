@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
-from utils import display_time, get_task_type, calculate_adjusted_datetime, process_uploaded_file, download_processed_data
-
+from utils import display_time, get_task_type, calculate_adjusted_datetime, process_uploaded_file, download_processed_data, copy_content_to_clipboard
 
 
 # Streamlit App Setup
@@ -74,11 +73,24 @@ if uploaded_file:
             st.dataframe(df_processed)
 
             num_rows, num_cols = df_processed.shape
-            st.markdown(f"**Number of rows:** {num_rows}")
-            st.markdown(f"**Number of columns:** {num_cols}")
+            st.markdown(f"Processed DataFrame Size: {num_cols} columns and {num_rows} rows")
 
-            # Download processed data
-            download_processed_data(df_processed, uploaded_file.name, selected_server)
+            # Add Copy Content Button
+            st.markdown("### Copy Content Without Headers:")
+            copy_text = df_processed.to_csv(index=False, header=False)  # Exclude headers
+            
+            # Collapsible section for content preview
+            with st.expander("Preview Copied Content"):
+                st.text_area("Content Preview (excluding headers):", copy_text, height=200)
+
+            # Buttons for Copy Content and Download
+            col1, col2 = st.columns(2)
+
+            with col1:
+                copy_content_to_clipboard(df_processed)
+
+            with col2:
+                download_processed_data(df_processed, uploaded_file.name, selected_server)
 
         except ValueError:
             st.error("Invalid datetime format.")

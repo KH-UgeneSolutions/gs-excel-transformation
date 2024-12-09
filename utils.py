@@ -3,7 +3,9 @@ import numpy as np
 from datetime import datetime, timedelta
 import pytz
 import streamlit as st
-import io, os
+import io, os, base64
+import streamlit.components.v1 as components
+import json
 
 # Constant unit
 gallon = 3.785411784
@@ -279,25 +281,84 @@ def process_uploaded_file(
 
     return df_processed
 
+def copy_content_to_clipboard(df_processed: pd.DataFrame):
+    """
+    Generates a custom copy button for the processed DataFrame content.
+    
+    Args:
+        df_processed: The processed DataFrame.
+    """
+    # Convert DataFrame to CSV format without headers
+    copy_text = df_processed.to_csv(index=False, header=False)
+    
+    # Escape the text for JavaScript
+    copy_text_json = json.dumps(copy_text)  # Properly escape the content for JavaScript
+
+    # Create a custom HTML button for copying
+    copy_button_html = f"""
+        <div>
+            <button id="copyButton" style="padding: 10px 20px; font-size: 16px; color: white; 
+                    background-color: #4CAF50; border: none; 
+                    border-radius: 5px; cursor: pointer;">
+                Copy Content
+            </button>
+            <p id="copyFeedback" style="color: green; display: none; margin-top: 10px;">
+                Content copied to clipboard!
+            </p>
+        </div>
+        <script>
+            const copyButton = document.getElementById('copyButton');
+            const feedback = document.getElementById('copyFeedback');
+            copyButton.addEventListener('click', () => {{
+                navigator.clipboard.writeText({copy_text_json}).then(() => {{
+                    feedback.style.display = 'block';
+                    setTimeout(() => {{
+                        feedback.style.display = 'none';
+                    }}, 2000);
+                }}).catch(err => {{
+                    alert('Failed to copy content.');
+                }});
+            }});
+        </script>
+    """
+
+    # Use components.html to render the button
+    components.html(copy_button_html, height=100)
 
 def download_processed_data(df_processed: pd.DataFrame, uploaded_file_name: str, selected_server: str):
     """
-    Generates a download button for the processed DataFrame.
+    Generates a custom download button for the processed DataFrame.
     
     Args:
         df_processed: The processed DataFrame.
         uploaded_file_name: The name of the uploaded file.
         selected_server: The selected server.
     """
-    with st.spinner("Generating download link..."):
-        output = io.BytesIO()
-        df_processed.to_excel(output, index=False, sheet_name='Sheet1')
-        output.seek(0)
+    # Create a BytesIO object for the Excel file
+    output = io.BytesIO()
+    df_processed.to_excel(output, index=False, sheet_name='Sheet1')
+    output.seek(0)
 
-        processed_filename = f"{selected_server}_{os.path.splitext(uploaded_file_name)[0]}_transformed.xlsx"
-        st.download_button(
-            label="Download Processed Data",
-            data=output,
-            file_name=processed_filename,
-            key="download_button"
-        )
+    # Generate the file name
+    processed_filename = f"{selected_server}_{os.path.splitext(uploaded_file_name)[0]}_transformed.xlsx"
+
+    # Encode the Excel file to base64
+    b64 = base64.b64encode(output.read()).decode()
+
+    # Create a custom HTML button for downloading with right alignment
+    download_button_html = f"""
+        <div style="text-align: right;">
+            <a href="data:application/octet-stream;base64,{b64}" download="{processed_filename}">
+                <button style="
+                    padding: 10px 20px; font-size: 16px; color: white; 
+                    background-color: #007BFF; border: none; 
+                    border-radius: 5px; cursor: pointer;">
+                    Download Processed Data
+                </button>
+            </a>
+        </div>
+    """
+
+    # Use components.html to render the button
+    components.html(download_button_html, height=70)
+
