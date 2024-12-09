@@ -62,6 +62,9 @@ def process_data(file, selected_datetime_str, adjusted_datetime, exclude_values=
     """
     df = read_file(file)
 
+    if exclude_values:
+        df = df[~df['S/N'].isin(exclude_values)] 
+
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (㎡)', 'Task start mode', 'Remarks']
     df.drop(columns=drop_columns, inplace=True)
@@ -142,6 +145,9 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime, exclude_valu
         df_processed = process_ca_data(uploaded_file, "2023-08-25 14:00:00", datetime.now())
     """
     df = read_file(file)
+
+    if exclude_values:
+        df = df[~df['S/N'].isin(exclude_values)] 
 
     # Drop unnecessary columns
     drop_columns = ['Total time', 'Task status', 'Plan running time (s)', 'Uncleaned area (ft²)', 'Task start mode', 'Remarks']

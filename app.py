@@ -26,13 +26,16 @@ uploaded_file_label = f" ##### Upload a CSV or XLSX file for {task_type}"
 uploaded_file = st.file_uploader(uploaded_file_label, type=["csv","xlsx"])
 
 # Input for dynamic exclusion of 'S/N' values
+exclude_sn = st.checkbox("Exclude Specific S/N Values (Check to Expand the Text Field)", value=False)
 exclude_values = None
-if selected_server == "GS AUS Eclipse":
-    st.markdown("#### Exclude S/N Values")
+
+if exclude_sn:  # Show text field when toggle is ON
+    st.markdown("#### Exclude S/N Values (comma-separated):")
     exclude_values_input = st.text_area(
-        "Enter S/N values to exclude (comma-separated):",
+        # "Enter S/N values to exclude (comma-separated):",
+        "",
         value="",
-        placeholder="e.g., 123, 456, 789"
+        placeholder="e.g., ABC123, EFG456, HIJ789"
     )
     if exclude_values_input:
         exclude_values = [value.strip() for value in exclude_values_input.split(",")]
@@ -49,16 +52,6 @@ if uploaded_file:
         try:
             # Parse the input datetime
             selected_datetime = datetime.strptime(selected_datetime_str, "%Y-%m-%d %H:%M:%S")
-
-            # # Process the uploaded file
-            # df_processed = process_uploaded_file(
-            #     uploaded_file,
-            #     task_type,
-            #     selected_datetime_str,
-            #     adjusted_datetime,
-            #     selected_server,
-            #     exclude_values=exclude_values 
-            # )
             
             # Prepare arguments for process_uploaded_file
             process_args = {
@@ -69,8 +62,8 @@ if uploaded_file:
                 "selected_server": selected_server,
             }
 
-            # Add 'exclude_values' to arguments only if server is 'GS AUS Eclipse'
-            if selected_server == "GS AUS Eclipse" and exclude_values:
+            # Add 'exclude_values' to arguments if toggle is ON and input is provided
+            if exclude_sn and exclude_values:
                 process_args["exclude_values"] = exclude_values
 
             # Process the uploaded file
