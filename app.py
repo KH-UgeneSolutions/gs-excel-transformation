@@ -39,6 +39,9 @@ if exclude_sn:  # Show text field when toggle is ON
     if exclude_values_input:
         exclude_values = [value.strip() for value in exclude_values_input.split(",")]
 
+# Checkbox to add two null columns: lat and lon
+add_lat_lon = st.checkbox("Add Extra Columns for Latitude (lat) and Longitude (lon)")
+
 if uploaded_file:
     selected_datetime_str = st.text_input(
         "Please Enter the [Receive Task Report Time]",
@@ -67,6 +70,11 @@ if uploaded_file:
 
             # Process the uploaded file
             df_processed = process_uploaded_file(**process_args)
+
+            # Optionally add 'lat' and 'lon' columns if the checkbox is checked
+            if add_lat_lon:
+                df_processed["Lat"] = "NULL"
+                df_processed["Lon"] = "NULL"
 
             # Display processed data and metadata
             st.markdown("### Processed DataFrame:")

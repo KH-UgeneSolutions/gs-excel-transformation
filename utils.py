@@ -100,6 +100,7 @@ def process_data(file, selected_datetime_str, adjusted_datetime, exclude_values=
 
     # Update columns with adjusted_datetime 
     columns_to_update = ['Planned crystallization area (㎡)', 'Actual crystallization area (㎡)']
+    df_test[columns_to_update] = df_test[columns_to_update].astype('object')
     df_test.loc[:, columns_to_update] = adjusted_datetime
 
     df_replaced = df_test.applymap(lambda cell: 0 if cell == '-' else cell)
@@ -184,6 +185,7 @@ def process_ca_data(file, selected_datetime_str, adjusted_datetime, exclude_valu
 
     # Update columns with adjusted_datetime
     columns_to_update = ['Planned crystallization area (ft²)', 'Actual crystallization area (ft²)']
+    df_test[columns_to_update] = df_test[columns_to_update].astype('object')
     df_test.loc[:, columns_to_update] = adjusted_datetime
 
     df_replaced = df_test.applymap(lambda cell: 0 if cell == '-' else cell)
@@ -216,9 +218,8 @@ def addTwoNullCols(df):
     Returns:
         pandas.DataFrame: DataFrame with the two new columns added and NaN values filled with 'NULL'.
     """
-    df['Job Id'] = np.nan
-    df['Vendor'] = np.nan
-    df.fillna("NULL", inplace=True)
+    df['Job Id'] = "NULL"
+    df['Vendor'] = "NULL"
 
     return df
 
