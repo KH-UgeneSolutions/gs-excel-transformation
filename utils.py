@@ -234,7 +234,6 @@ def display_time() -> str:
     utc_time = datetime.utcnow()
     sg_time = convert_to_sg_time(utc_time).strftime("%Y-%m-%d %H:%M:%S")
     st.markdown(f"##### Singapore Time: {sg_time}")
-    # st.markdown(f"<p style='font-size:20px; font-weight:bold;'>{sg_time}</p>", unsafe_allow_html=True)
     return sg_time
 
 
@@ -245,8 +244,8 @@ def get_task_type(server: str) -> str:
 
 def calculate_adjusted_datetime(server: str) -> str:
     """Calculates adjusted datetime based on the server."""
-    time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8)
-    # time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8) # uncomment if env on local streamlit
+    time_diff = timedelta(hours=9) if server == "GS SPORE" else timedelta(hours=8) # comment if env on local streamlit
+    # time_diff = timedelta(hours=1) if server == "GS SPORE" else timedelta(hours=0) # uncomment if env on local streamlit
     adjusted_datetime = (datetime.now() + time_diff).strftime("%Y-%m-%d %H:%M:%S")
     return adjusted_datetime
 

@@ -21,7 +21,6 @@ adjusted_datetime = calculate_adjusted_datetime(selected_server)
 
 # File upload section
 uploaded_file_label = f" ##### Upload a CSV or XLSX file for {task_type}"
-# st.markdown(uploaded_file_label)
 uploaded_file = st.file_uploader(uploaded_file_label, type=["csv","xlsx"])
 
 # Input for dynamic exclusion of 'S/N' values
@@ -31,7 +30,6 @@ exclude_values = None
 if exclude_sn:  # Show text field when toggle is ON
     st.markdown("#### Exclude S/N Values (comma-separated):")
     exclude_values_input = st.text_area(
-        # "Enter S/N values to exclude (comma-separated):",
         "",
         value="",
         placeholder="e.g., ABC123, EFG456, HIJ789"
