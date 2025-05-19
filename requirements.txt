@@ -1,5 +1,13 @@
+mypy
 numpy
+openpyxl
 pandas
+pandas-stubs
+pydantic
+pymysql
+python-dotenv
+ruff
+SQLAlchemy
+sqlalchemy
 streamlit
 xlsxwriter
-openpyxl

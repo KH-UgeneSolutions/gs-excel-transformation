@@ -1,0 +1,45 @@
+[project]
+name = "gs-excel-transformation-webapp"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.mypy]
+# Specify the Python version and target operating system
+python_version = "3.10"
+files = ["app/"]
+# Disallow the use of untyped function definitions
+disallow_untyped_defs = true
+# Disallow calls to functions without type annotations
+disallow_untyped_calls = true
+# Warn about unused "ignore" comments
+warn_unused_ignores = true
+# Ignore missing imports
+ignore_missing_imports = true
+# Enable strict optional checks
+strict_optional = true
+# Disallow returning Any from functions
+disallow_any_explicit = true
+# Check function bodies even if they’re untyped
+check_untyped_defs = true
+# Warn if function returns `Any`
+warn_return_any = true
+
+[tool.ruff]
+# Specify the code style to enforce
+lint.select = ["E", "W", "F"]
+# Ignore certain error codes
+lint.ignore = []
+# Set the line length
+line-length = 130
+
+[tool.ruff.lint.per-file-ignores]
+# Specify files or directories to ignore specific error codes
+"tests/test_*.py" = ["E501"]
