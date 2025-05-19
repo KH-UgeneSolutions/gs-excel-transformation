@@ -30,5 +30,5 @@ pip install -r requirements.txt
 ## Deploying to Browser
 1. Run the streamlit command (note that `app.py` must be in same directory before running the command)
 ```
-streamlit run app.py
+streamlit run app/main.py
 ```
