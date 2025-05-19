@@ -389,10 +389,10 @@ def calculate_adjusted_datetime(server: str) -> str:
         str: Adjusted datetime formatted as "YYYY-MM-DD HH:MM:SS".
     """
     # Production logic
-    # time_diff = timedelta(hours=9) if server == "GS SGV1" else timedelta(hours=8)
+    time_diff = timedelta(hours=9) if server == "GS SGV1" else timedelta(hours=8)
 
     # For local testing, use this instead:
-    time_diff = timedelta(hours=1) if server == "GS SGV1" else timedelta(hours=0)
+    # time_diff = timedelta(hours=1) if server == "GS SGV1" else timedelta(hours=0)
 
     adjusted_datetime = (datetime.now() + time_diff).strftime("%Y-%m-%d %H:%M:%S")
     return adjusted_datetime
