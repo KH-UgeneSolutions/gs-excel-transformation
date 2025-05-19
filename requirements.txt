@@ -7,7 +7,6 @@ pydantic
 pymysql
 python-dotenv
 ruff
-SQLAlchemy
 sqlalchemy
 streamlit
 xlsxwriter
