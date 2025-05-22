@@ -168,27 +168,30 @@ def process_data(
     df_test[columns_to_update] = df_test[columns_to_update].astype("object")
     df_test.loc[:, columns_to_update] = adjusted_datetime
 
-    df_replaced = df_test.applymap(lambda cell: 0 if cell == "-" else cell)
+    df_replaced = df_test.replace("-", 0)
     df_replaced = df_replaced.fillna("NULL")
 
     # Remove commas and replace values in specified columns
-    columns_with_comma = [
+    columns_with_comma_or_pct = [
         "Work efficiency (㎡/h)",
         "Actual cleaning area(㎡)",
         "Cleaning plan area (㎡)",
+        "Brush (%)",
+        "Filter (%)",
+        "Squeegee(%)",
     ]
-    columns_with_pct = ["Brush (%)", "Filter (%)", "Squeegee(%)"]
-
-    print(df_replaced[columns_with_comma])
-    print(df_replaced[columns_with_comma].dtypes)
 
     # For loop to handle multiple dtypes
-    for column in columns_with_comma:
+    for column in columns_with_comma_or_pct:
         if df_replaced[column].dtype in ["object", "float64"]:
-            df_replaced[column] = df_replaced[column].astype(str).str.replace(",", "")
-            df_replaced[column] = df_replaced[column].replace("0.00", "0")
-
-    df_replaced[columns_with_pct] = df_replaced[columns_with_pct].replace("100.00", "100")
+            df_replaced[column] = (
+                df_replaced[column]
+                .astype(str)
+                .str.replace(",", "", regex=False)
+                .replace("0.00", "0")
+                .replace("100.00", "100")
+                .astype(float)
+            )
 
     return df_replaced
 
@@ -288,7 +291,7 @@ def process_ca_data(
     df_test[columns_to_update] = df_test[columns_to_update].astype("object")
     df_test.loc[:, columns_to_update] = adjusted_datetime
 
-    df_replaced = df_test.applymap(lambda cell: 0 if cell == "-" else cell)
+    df_replaced = df_test.replace("-", 0)
     df_replaced = df_replaced.fillna("NULL")
 
     columns_with_comma = [
@@ -297,17 +300,16 @@ def process_ca_data(
         "Cleaning plan area (ft²)",
     ]
     columns_with_pct = ["Brush (%)", "Filter (%)", "Squeegee(%)"]
-    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(lambda x: x.str.replace(",", ""))
+    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(
+        lambda col: col.astype(str).str.replace(",", "", regex=False)
+    )
 
     # Convert gallon and feet_squared to appropriate values
-    df_replaced["Water usage (gal)"] = df_replaced["Water usage (gal)"] * gallon
+    df_replaced["Water usage (gal)"] = (df_replaced["Water usage (gal)"] * gallon).apply(pd.to_numeric).round(4)
     df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(pd.to_numeric) * feet_squared
-    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].applymap(lambda x: str(x).replace(",", ""))
-    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(pd.to_numeric).round(4)
-    df_replaced["Water usage (gal)"] = df_replaced["Water usage (gal)"].apply(pd.to_numeric).round(4)
-
-    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].replace("0.0", "0")
-    df_replaced[columns_with_pct] = df_replaced[columns_with_pct].replace("100.00", "100")
+    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].astype(str).replace(",", "")
+    df_replaced[columns_with_comma] = df_replaced[columns_with_comma].apply(pd.to_numeric).round(3)
+    df_replaced[columns_with_pct] = df_replaced[columns_with_pct].replace("0.0", "0").replace("100.00", "100").astype(float)
 
     return df_replaced
 
@@ -431,7 +433,7 @@ def process_uploaded_file(
     df_processed = df_processed.rename(columns=cols_to_rename)
 
     # Add pause_time column for "GS SGV2"
-    if selected_server == "GS SGV2":
+    if selected_server in ["GS SGV2", "GS AUS"]:
         df_processed = addPauseTimeNullCol(df_processed)
 
     # Add null columns for servers other than "GS SGV1"
